@@ -1,0 +1,74 @@
+.lo-overlay {
+  position: fixed;
+  inset: 0;
+  background: rgba(0, 0, 0, 0.4);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  z-index: 100;
+}
+
+.lo-modal {
+  background: #fff;
+  border-radius: 16px;
+  padding: 32px 28px;
+  width: 100%;
+  max-width: 360px;
+  text-align: center;
+  box-shadow: 0 20px 60px rgba(0,0,0,0.15);
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+}
+
+.dp-dark .lo-modal { background: #1a1a2e; }
+
+.lo-title {
+  font-size: 18px;
+  font-weight: 700;
+  color: #1a1a2e;
+  margin: 0;
+}
+
+.dp-dark .lo-title { color: #fff; }
+
+.lo-text {
+  font-size: 14px;
+  color: #6b7280;
+  margin: 0 0 16px;
+}
+
+.lo-footer {
+  display: flex;
+  gap: 10px;
+  justify-content: center;
+}
+
+.lo-confirm {
+  padding: 10px 24px;
+  border-radius: 10px;
+  background: #4B3AC7;
+  color: #fff;
+  font-size: 14px;
+  font-weight: 600;
+  border: none;
+  cursor: pointer;
+  font-family: inherit;
+  transition: background 0.15s;
+}
+
+.lo-confirm:hover { background: #3D2FAF; }
+
+.lo-cancel {
+  padding: 10px 20px;
+  border-radius: 10px;
+  border: 0.5px solid #e5e7eb;
+  background: #fff;
+  font-size: 14px;
+  font-weight: 500;
+  color: #6b7280;
+  cursor: pointer;
+  font-family: inherit;
+}
+
+.dp-dark .lo-cancel { background: #252538; border-color: #3a3a5c; color: #d1d5db; }
