@@ -1,0 +1,49 @@
+.sc-card {
+  background: #fff;
+  border-radius: 14px;
+  padding: 20px;
+  border: 0.5px solid #f0f0f0;
+}
+
+.dp-dark .sc-card {
+  background: #1a1a2e;
+  border-color: #2a2a3e;
+}
+
+.sc-card__header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  margin-bottom: 10px;
+}
+
+.sc-card__label {
+  font-size: 13px;
+  color: #6b7280;
+}
+
+.sc-card__icon {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 14px;
+}
+
+.sc-card__icon--green { background: #d1fae5; color: #059669; }
+.sc-card__icon--orange { background: #ffedd5; color: #ea580c; }
+.sc-card__icon--purple { background: #ede9fe; color: #7C5DF5; }
+
+.sc-card__value {
+  font-size: 32px;
+  font-weight: 700;
+  color: #1a1a2e;
+}
+
+.dp-dark .sc-card__value { color: #fff; }
+
+.sc-card__extra {
+  margin-top: 10px;
+}
