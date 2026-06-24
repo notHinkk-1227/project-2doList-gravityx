@@ -5,6 +5,8 @@ import AddTaskModal from "../../components/AddTaskModal/AddTaskModal";
 import EditTaskModal from "../../components/EditTaskModal/EditTaskModal";
 import UserMenu from "../../components/UserMenu/UserMenu";
 import Logout from "../../components/Logout/Logout";
+import { getTasks, createTask, updateTask, deleteTask } from "../../services/taskService";
+import { getProfile } from "../../services/authService";
 import "./DashboardPage.css";
 
 function getGreeting(hour) {
@@ -15,19 +17,9 @@ function getGreeting(hour) {
 
 export default function DashboardPage() {
   const [now, setNow] = useState(new Date());
-
-  useEffect(() => {
-    const interval = setInterval(() => {
-      setNow(new Date());
-    }, 60000);
-    return () => clearInterval(interval);
-  }, []);
-
-  const [tasks, setTasks] = useState(() => {
-    const saved = localStorage.getItem("tasks");
-    return saved ? JSON.parse(saved) : [];
-  });
-
+  const [tasks, setTasks] = useState([]);
+  const [user, setUser] = useState(null);
+  const [loading, setLoading] = useState(true);
   const [activeTab, setActiveTab] = useState("All");
   const [searchQuery, setSearchQuery] = useState("");
   const [showAddModal, setShowAddModal] = useState(false);
@@ -36,24 +28,62 @@ export default function DashboardPage() {
   const [showUserMenu, setShowUserMenu] = useState(false);
   const [showLogoutModal, setShowLogoutModal] = useState(false);
 
+  // Update jam setiap menit
   useEffect(() => {
-    localStorage.setItem("tasks", JSON.stringify(tasks));
-  }, [tasks]);
+    const interval = setInterval(() => setNow(new Date()), 60000);
+    return () => clearInterval(interval);
+  }, []);
 
-  const handleAddTask = ({ title, priority, date, tags }) => {
-    const newId = tasks.length ? Math.max(...tasks.map((t) => t.id)) + 1 : 1;
-    setTasks((prev) => [...prev, {
-      id: newId,
-      title,
-      priority,
-      date,
-      tags,
-      completed: false,
-    }]);
+  // Load user profile & tasks dari database
+  useEffect(() => {
+    const loadData = async () => {
+      try {
+        const [profileData, tasksData] = await Promise.all([
+          getProfile(),
+          getTasks(),
+        ]);
+        setUser(profileData.user);
+        setTasks(tasksData);
+      } catch (error) {
+        console.error("Gagal load data:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+    loadData();
+  }, []);
+
+  const handleAddTask = async ({ title, description, priority, date, tags }) => {
+    try {
+      const newTask = await createTask({
+        title,
+        priority,
+        due_date: date || null,
+        tags: tags || [],
+        description: description || null,
+      });
+      setTasks((prev) => [newTask, ...prev]);
+    } catch (error) {
+      console.error("Gagal tambah task:", error);
+    }
   };
 
-  const handleToggle = (id) => {
-    setTasks((prev) => prev.map((t) => t.id === id ? { ...t, completed: !t.completed } : t));
+  const handleToggle = async (id) => {
+    const task = tasks.find((t) => t.id === id);
+    if (!task) return;
+    try {
+      const updated = await updateTask(id, {
+        title: task.title,
+        description: task.description,
+        is_completed: !task.is_completed,
+        priority: task.priority,
+        due_date: task.due_date,
+        tags: task.tags,
+      });
+      setTasks((prev) => prev.map((t) => t.id === id ? updated : t));
+    } catch (error) {
+      console.error("Gagal toggle task:", error);
+    }
   };
 
   const handleEdit = (task) => {
@@ -61,34 +91,59 @@ export default function DashboardPage() {
     setShowEditModal(true);
   };
 
-  const handleSaveEdit = (updatedTask) => {
-    setTasks((prev) => prev.map((t) => t.id === updatedTask.id ? updatedTask : t));
+  const handleSaveEdit = async (updatedTask) => {
+    try {
+      const saved = await updateTask(updatedTask.id, {
+        title: updatedTask.title,
+        description: updatedTask.description,
+        is_completed: updatedTask.is_completed,
+        priority: updatedTask.priority,
+        due_date: updatedTask.date || updatedTask.due_date,
+        tags: updatedTask.tags,
+      });
+      setTasks((prev) => prev.map((t) => t.id === saved.id ? saved : t));
+    } catch (error) {
+      console.error("Gagal edit task:", error);
+    }
   };
 
-  const handleDelete = (id) => {
-    setTasks((prev) => prev.filter((t) => t.id !== id));
+  const handleDelete = async (id) => {
+    try {
+      await deleteTask(id);
+      setTasks((prev) => prev.filter((t) => t.id !== id));
+    } catch (error) {
+      console.error("Gagal hapus task:", error);
+    }
   };
 
   const filteredTasks = tasks.filter((t) => {
     const matchTab =
-      activeTab === "Active" ? !t.completed :
-      activeTab === "Completed" ? t.completed : true;
+      activeTab === "Active" ? !t.is_completed :
+      activeTab === "Completed" ? t.is_completed : true;
 
     const matchSearch = searchQuery.trim() === "" ? true :
       t.title.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      t.tags.some((tag) => tag.toLowerCase().includes(searchQuery.toLowerCase())) ||
-      t.priority.toLowerCase().includes(searchQuery.toLowerCase());
+      (t.tags || []).some((tag) => tag.toLowerCase().includes(searchQuery.toLowerCase())) ||
+      (t.priority || "").toLowerCase().includes(searchQuery.toLowerCase());
 
     return matchTab && matchSearch;
   });
 
-  const completedCount = tasks.filter((t) => t.completed).length;
-  const pendingCount = tasks.filter((t) => !t.completed).length;
+  const completedCount = tasks.filter((t) => t.is_completed).length;
+  const pendingCount = tasks.filter((t) => !t.is_completed).length;
   const productivity = tasks.length ? Math.round((completedCount / tasks.length) * 100) : 0;
+  const displayName = user?.username || user?.name || "User";
+
+  if (loading) {
+    return (
+      <div className="dp-root" style={{ display: "flex", alignItems: "center", justifyContent: "center" }}>
+        <p style={{ color: "#6b7280" }}>Loading...</p>
+      </div>
+    );
+  }
 
   return (
     <div className="dp-root">
-
       <main className="dp-main">
 
         {/* Topbar */}
@@ -116,11 +171,14 @@ export default function DashboardPage() {
               onClick={() => setShowUserMenu((v) => !v)}
               style={{ position: "relative" }}
             >
-              <div className="dp-user__avatar">U</div>
-              <span className="dp-user__name">User</span>
+              <div className="dp-user__avatar">
+                {displayName.charAt(0).toUpperCase()}
+              </div>
+              <span className="dp-user__name">{displayName}</span>
               <span className="dp-user__chevron">v</span>
               {showUserMenu && (
                 <UserMenu
+                  user={user}
                   onLogout={() => {
                     setShowUserMenu(false);
                     setShowLogoutModal(true);
@@ -133,7 +191,7 @@ export default function DashboardPage() {
 
         {/* Greeting */}
         <div className="dp-greeting">
-          <h1 className="dp-greeting__title">{getGreeting(now.getHours())}, User</h1>
+          <h1 className="dp-greeting__title">{getGreeting(now.getHours())}, {displayName}</h1>
           <p className="dp-greeting__sub">Here's what you have planned for today</p>
         </div>
 
@@ -211,7 +269,11 @@ export default function DashboardPage() {
               filteredTasks.map((task) => (
                 <TaskCard
                   key={task.id}
-                  task={task}
+                  task={{
+                    ...task,
+                    completed: task.is_completed,
+                    date: task.due_date,
+                  }}
                   onToggle={handleToggle}
                   onEdit={handleEdit}
                   onDelete={handleDelete}
@@ -231,7 +293,11 @@ export default function DashboardPage() {
 
       <EditTaskModal
         show={showEditModal}
-        task={editingTask}
+        task={editingTask ? {
+          ...editingTask,
+          completed: editingTask.is_completed,
+          date: editingTask.due_date,
+        } : null}
         onClose={() => {
           setShowEditModal(false);
           setEditingTask(null);
@@ -243,7 +309,6 @@ export default function DashboardPage() {
         show={showLogoutModal}
         onClose={() => setShowLogoutModal(false)}
       />
-
     </div>
   );
 }

@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { useNavigate } from "react-router-dom";
 import { registerUser } from "../../services/authService";
 import decoImg from "../../assets/deco-logo.png";
 import "./RegisterPage.css";
@@ -6,34 +7,51 @@ import "./RegisterPage.css";
 function RegisterPage() {
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");
+  const [username, setUsername] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [errorMsg, setErrorMsg] = useState("");
+  const [successMsg, setSuccessMsg] = useState("");
+
+  const navigate = useNavigate();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     setLoading(true);
+    setErrorMsg("");
+    setSuccessMsg("");
 
     try {
       const data = await registerUser({
-        username: firstName + (lastName ? " " + lastName : ""),
+        name: firstName + (lastName ? " " + lastName : ""),
+        username,
         email,
         password,
       });
 
-      console.log(data);
-      alert("Register Berhasil");
+      console.log("Register success:", data);
+      setSuccessMsg("Akun berhasil dibuat! Mengalihkan ke halaman login...");
 
+      // Reset form
       setFirstName("");
       setLastName("");
+      setUsername("");
       setEmail("");
       setPassword("");
+
+      // Redirect ke login setelah 1.5 detik
+      setTimeout(() => {
+        navigate("/login");
+      }, 1500);
     } catch (error) {
-      console.error("FULL ERROR:", error);
-      console.log("RESPONSE:", error.response);
-      console.log("DATA:", error.response?.data);
-      alert(error.response?.data?.message || "Register Gagal");
+      console.error("Register error:", error);
+      const message =
+        error.response?.data?.message ||
+        error.response?.data?.error ||
+        "Register gagal. Silakan coba lagi.";
+      setErrorMsg(message);
     } finally {
       setLoading(false);
     }
@@ -54,6 +72,20 @@ function RegisterPage() {
             <h1 className="rp-form__title">Create Account</h1>
             <p className="rp-form__subtitle">Start organizing your day</p>
 
+            {/* Notifikasi error */}
+            {errorMsg && (
+              <div className="rp-alert rp-alert--error">
+                {errorMsg}
+              </div>
+            )}
+
+            {/* Notifikasi sukses */}
+            {successMsg && (
+              <div className="rp-alert rp-alert--success">
+                {successMsg}
+              </div>
+            )}
+
             <form onSubmit={handleSubmit}>
               <div className="rp-field-row">
                 <input
@@ -62,6 +94,7 @@ function RegisterPage() {
                   value={firstName}
                   onChange={(e) => setFirstName(e.target.value)}
                   className="rp-input"
+                  required
                 />
                 <input
                   type="text"
@@ -70,6 +103,25 @@ function RegisterPage() {
                   onChange={(e) => setLastName(e.target.value)}
                   className="rp-input"
                 />
+              </div>
+
+              <div className="rp-field">
+                <div style={{ position: "relative" }}>
+                  <input
+                    type="text"
+                    placeholder="Username"
+                    value={username}
+                    onChange={(e) => setUsername(e.target.value)}
+                    className="rp-input"
+                    required
+                    style={{ paddingRight: "38px" }}
+                  />
+                  <span style={{ position: "absolute", right: 12, top: "50%", transform: "translateY(-50%)", color: "#9ca3af" }}>
+                    <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" width={16} height={16}>
+                      <path strokeLinecap="round" strokeLinejoin="round" d="M15.75 6a3.75 3.75 0 1 1-7.5 0 3.75 3.75 0 0 1 7.5 0ZM4.501 20.118a7.5 7.5 0 0 1 14.998 0A17.933 17.933 0 0 1 12 21.75c-2.676 0-5.216-.584-7.499-1.632Z" />
+                    </svg>
+                  </span>
+                </div>
               </div>
 
               <div className="rp-field">

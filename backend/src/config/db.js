@@ -1,3 +1,9 @@
+const { types } = require("pg");
+ 
+// OID 1082 = tipe DATE bawaan PostgreSQL
+types.setTypeParser(1082, (val) => val); // val sudah berbentuk "YYYY-MM-DD", kembalikan apa adanya
+ 
+// ---- lanjutan kode pool/db kamu yang sudah ada, taruh di bawah baris ini ----
 const { Pool } = require("pg");
 
 const pool = new Pool({

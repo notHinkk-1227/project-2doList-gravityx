@@ -13,12 +13,12 @@
 
 .dp-dark .um-menu { background: #1a1a2e; border-color: #2a2a3e; }
 
-.um-info { padding: 12px 14px; }
+.um-info { padding: 12px 14px; text-align: left; }
 
-.um-name { font-size: 13px; font-weight: 600; color: #1a1a2e; }
+.um-name { font-size: 13px; font-weight: 600; color: #1a1a2e; text-align: left; }
 .dp-dark .um-name { color: #fff; }
 
-.um-email { font-size: 11px; color: #9ca3af; margin-top: 2px; }
+.um-email { font-size: 11px; color: #9ca3af; margin-top: 2px; text-align: left; }
 
 .um-divider { height: 0.5px; background: #f0f0f0; }
 .dp-dark .um-divider { background: #2a2a3e; }
