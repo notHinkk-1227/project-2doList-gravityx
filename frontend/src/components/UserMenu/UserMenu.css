@@ -1,0 +1,46 @@
+.um-menu {
+  position: absolute;
+  top: calc(100% + 8px);
+  right: 0;
+  background: #fff;
+  border-radius: 12px;
+  box-shadow: 0 8px 24px rgba(0,0,0,0.12);
+  border: 0.5px solid #e5e7eb;
+  min-width: 180px;
+  z-index: 50;
+  overflow: hidden;
+}
+
+.dp-dark .um-menu { background: #1a1a2e; border-color: #2a2a3e; }
+
+.um-info { padding: 12px 14px; }
+
+.um-name { font-size: 13px; font-weight: 600; color: #1a1a2e; }
+.dp-dark .um-name { color: #fff; }
+
+.um-email { font-size: 11px; color: #9ca3af; margin-top: 2px; }
+
+.um-divider { height: 0.5px; background: #f0f0f0; }
+.dp-dark .um-divider { background: #2a2a3e; }
+
+.um-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  width: 100%;
+  padding: 10px 14px;
+  border: none;
+  background: none;
+  font-size: 13px;
+  font-weight: 500;
+  color: #374151;
+  cursor: pointer;
+  font-family: inherit;
+  text-align: left;
+  transition: background 0.15s;
+}
+
+.um-item:hover { background: #f9fafb; }
+.dp-dark .um-item { color: #d1d5db; }
+.dp-dark .um-item:hover { background: #252538; }
+.um-item--logout { color: #ef4444 !important; }
