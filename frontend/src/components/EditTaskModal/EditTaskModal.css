@@ -1,3 +1,4 @@
+/* ===== Overlay ===== */
 .etm-overlay {
   position: fixed;
   inset: 0;
@@ -5,133 +6,375 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  z-index: 100;
+  z-index: 1000;
+  padding: 1rem;
+  backdrop-filter: blur(2px);
 }
 
+/* ===== Modal ===== */
 .etm-modal {
-  background: #fff;
+  background: #ffffff;
   border-radius: 16px;
-  padding: 28px;
+  box-shadow: 0 20px 60px rgba(0, 0, 0, 0.15);
   width: 100%;
-  max-width: 460px;
+  max-width: 480px;
   display: flex;
   flex-direction: column;
-  gap: 18px;
-  box-shadow: 0 20px 60px rgba(0,0,0,0.15);
+  animation: etm-slide-up 0.22s ease;
+  overflow: visible;
 }
 
-.etm-header { display: flex; justify-content: space-between; align-items: center; }
-.etm-title { font-size: 18px; font-weight: 700; color: #1a1a2e; margin: 0; }
-.etm-close { background: none; border: none; font-size: 16px; cursor: pointer; color: #9ca3af; }
-.etm-field { display: flex; flex-direction: column; gap: 6px; }
-.etm-label { font-size: 13px; font-weight: 600; color: #374151; }
-.etm-hint { font-weight: 400; color: #9ca3af; font-size: 11px; }
+@keyframes etm-slide-up {
+  from { opacity: 0; transform: translateY(16px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+
+/* ===== Header ===== */
+.etm-header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  padding: 1.25rem 1.5rem 1rem;
+  border-bottom: 1px solid #f3f4f6;
+  border-radius: 16px 16px 0 0;
+}
+
+.etm-title {
+  font-size: 1rem;
+  font-weight: 600;
+  color: #111827;
+  margin: 0;
+  text-align: left;
+}
+
+.etm-close {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border: none;
+  background: #f9fafb;
+  border-radius: 8px;
+  cursor: pointer;
+  color: #6b7280;
+  font-size: 16px;
+  transition: background 0.15s, color 0.15s;
+}
+.etm-close:hover { background: #f3f4f6; color: #374151; }
+
+/* ===== Body ===== */
+.etm-body {
+  padding: 1.25rem 1.5rem;
+  display: flex;
+  flex-direction: column;
+  gap: 1.1rem;
+  text-align: left;
+}
+
+/* ===== Fields ===== */
+.etm-field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.4rem;
+}
+
+.etm-label {
+  font-size: 0.75rem;
+  font-weight: 600;
+  color: #374151;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+  text-align: left;
+}
+
+.etm-required { color: #ef4444; margin-left: 2px; }
+
+.etm-hint {
+  font-size: 0.72rem;
+  color: #9ca3af;
+  font-weight: 400;
+  text-transform: none;
+  letter-spacing: 0;
+}
 
 .etm-input {
-  padding: 10px 14px;
+  width: 100%;
+  padding: 0.6rem 0.875rem;
+  border: 1.5px solid #e5e7eb;
   border-radius: 10px;
-  border: 0.5px solid #d1d5db;
-  background: #f9fafb;
-  font-size: 14px;
+  font-size: 0.9rem;
   color: #111827;
-  font-family: inherit;
+  background: #fafafa;
   outline: none;
-  transition: border 0.15s, box-shadow 0.15s;
+  transition: border-color 0.15s, box-shadow 0.15s;
+  box-sizing: border-box;
+  font-family: inherit;
 }
-
+.etm-input::placeholder { color: #9ca3af; }
 .etm-input:focus {
-  border-color: #7C5DF5;
-  box-shadow: 0 0 0 3px rgba(124, 93, 245, 0.12);
+  border-color: #6366f1;
+  background: #fff;
+  box-shadow: 0 0 0 3px rgba(99,102,241,0.12);
 }
 
-.etm-priority-row { display: flex; gap: 8px; }
+.etm-textarea {
+  width: 100%;
+  padding: 0.6rem 0.875rem;
+  border: 1.5px solid #e5e7eb;
+  border-radius: 10px;
+  font-size: 0.9rem;
+  color: #111827;
+  background: #fafafa;
+  outline: none;
+  transition: border-color 0.15s, box-shadow 0.15s;
+  resize: vertical;
+  min-height: 80px;
+  font-family: inherit;
+  line-height: 1.5;
+  box-sizing: border-box;
+}
+.etm-textarea::placeholder { color: #9ca3af; }
+.etm-textarea:focus {
+  border-color: #6366f1;
+  background: #fff;
+  box-shadow: 0 0 0 3px rgba(99,102,241,0.12);
+}
+
+/* ===== Priority — full width, 3 equal buttons (outline style, matches Add Task) ===== */
+.etm-priority-group {
+  display: flex;
+  gap: 0.5rem;
+}
 
 .etm-priority-btn {
   flex: 1;
-  padding: 8px 0;
-  border-radius: 8px;
-  border: 1.5px solid transparent;
-  font-size: 13px;
-  font-weight: 600;
+  padding: 0.55rem 0;
+  border-radius: 10px;
+  border: 1.5px solid #e5e7eb;
+  font-size: 0.85rem;
+  font-weight: 500;
   cursor: pointer;
+  background: #fafafa;
+  color: #6b7280;
   font-family: inherit;
   transition: all 0.15s;
 }
 
-.etm-priority-btn--low { background: #dbeafe; color: #2563eb; }
-.etm-priority-btn--medium { background: #fef9c3; color: #ca8a04; }
-.etm-priority-btn--high { background: #fee2e2; color: #dc2626; }
-.etm-priority-btn--active { border-color: currentColor; box-shadow: 0 0 0 2px rgba(0,0,0,0.1); }
+.etm-priority-btn--low:hover,
+.etm-priority-btn--low.etm-priority-btn--active {
+  border-color: #10b981; background: #ecfdf5; color: #059669;
+}
+.etm-priority-btn--medium:hover,
+.etm-priority-btn--medium.etm-priority-btn--active {
+  border-color: #f59e0b; background: #fffbeb; color: #d97706;
+}
+.etm-priority-btn--high:hover,
+.etm-priority-btn--high.etm-priority-btn--active {
+  border-color: #ef4444; background: #fef2f2; color: #dc2626;
+}
 
-.etm-tags-input {
+/* ===== Due date — same full-width style as Add Task ===== */
+.etm-date-group { display: flex; }
+
+.etm-date-btn {
+  flex: 1;
+  display: flex;
+  align-items: center;
+  gap: 0.5rem;
+  padding: 0.55rem 0.875rem;
+  border: 1.5px solid #e5e7eb;
+  border-radius: 10px;
+  background: #fafafa;
+  color: #9ca3af;
+  font-size: 0.875rem;
+  cursor: pointer;
+  font-family: inherit;
+  transition: border-color 0.15s, background 0.15s;
+  box-sizing: border-box;
+}
+.etm-date-btn:hover { border-color: #d1d5db; background: #f3f4f6; }
+.etm-date-btn--has-value { color: #111827; border-color: #6366f1; background: #fff; }
+
+/* ===== Calendar — rendered via portal, positioned fixed ===== */
+.etm-calendar {
+  background: #ffffff;
+  border: 1px solid #e5e7eb;
+  border-radius: 14px;
+  box-shadow: 0 8px 32px rgba(0,0,0,0.14);
+  padding: 1rem;
+}
+
+.etm-calendar__header {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 0.75rem;
+}
+
+.etm-calendar__nav {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 28px;
+  height: 28px;
+  border: none;
+  background: #f3f4f6;
+  border-radius: 6px;
+  cursor: pointer;
+  color: #374151;
+  transition: background 0.12s;
+}
+.etm-calendar__nav:hover { background: #e5e7eb; }
+
+.etm-calendar__month-label { font-size: 0.85rem; font-weight: 600; color: #111827; }
+
+.etm-calendar__grid {
+  display: grid;
+  grid-template-columns: repeat(7, 1fr);
+  gap: 2px;
+}
+
+.etm-calendar__day-name {
+  text-align: center;
+  font-size: 0.7rem;
+  font-weight: 600;
+  color: #9ca3af;
+  padding: 4px 0;
+  letter-spacing: 0.02em;
+}
+
+.etm-calendar__cell { display: flex; align-items: center; justify-content: center; }
+
+.etm-calendar__day {
+  width: 30px;
+  height: 30px;
+  border: none;
+  background: transparent;
+  border-radius: 7px;
+  font-size: 0.8rem;
+  color: #374151;
+  cursor: pointer;
+  transition: background 0.12s, color 0.12s;
+}
+.etm-calendar__day:hover:not(:disabled) { background: #f3f4f6; }
+
+.etm-calendar__day--today { background: #ede9fe; color: #6366f1; font-weight: 600; }
+.etm-calendar__day--selected { background: #6366f1 !important; color: #ffffff !important; font-weight: 600; }
+.etm-calendar__day--past { color: #d1d5db; cursor: not-allowed; }
+
+.etm-calendar__footer {
+  margin-top: 0.75rem;
+  padding-top: 0.75rem;
+  border-top: 1px solid #f3f4f6;
+  display: flex;
+  justify-content: flex-end;
+}
+
+.etm-calendar__clear {
+  border: none;
+  background: none;
+  font-size: 0.78rem;
+  color: #9ca3af;
+  cursor: pointer;
+  padding: 2px 4px;
+  border-radius: 4px;
+  transition: color 0.12s;
+}
+.etm-calendar__clear:hover { color: #ef4444; }
+
+/* ===== Tag chip input ===== */
+.etm-tag-box {
   display: flex;
   flex-wrap: wrap;
-  gap: 6px;
-  padding: 8px 12px;
-  border-radius: 10px;
-  border: 0.5px solid #d1d5db;
-  background: #f9fafb;
-  min-height: 42px;
   align-items: center;
+  gap: 6px;
+  padding: 0.45rem 0.75rem;
+  border: 1.5px solid #e5e7eb;
+  border-radius: 10px;
+  background: #fafafa;
+  cursor: text;
+  min-height: 42px;
+  transition: border-color 0.15s, box-shadow 0.15s;
+}
+.etm-tag-box:focus-within {
+  border-color: #6366f1;
+  background: #fff;
+  box-shadow: 0 0 0 3px rgba(99,102,241,0.12);
 }
 
-.etm-tag-pill {
-  display: flex;
+.etm-chip {
+  display: inline-flex;
   align-items: center;
   gap: 4px;
+  padding: 2px 8px 2px 10px;
   background: #ede9fe;
-  color: #4B3AC7;
-  font-size: 12px;
+  color: #4f46e5;
+  border-radius: 999px;
+  font-size: 0.78rem;
   font-weight: 500;
-  padding: 3px 8px;
-  border-radius: 6px;
+  white-space: nowrap;
 }
 
-.etm-tag-pill__remove {
-  background: none;
+.etm-chip__remove {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  width: 16px;
+  height: 16px;
   border: none;
+  background: none;
+  color: #7c73e6;
+  font-size: 14px;
+  line-height: 1;
   cursor: pointer;
-  font-size: 10px;
-  color: #7C5DF5;
+  border-radius: 50%;
   padding: 0;
+  transition: background 0.12s, color 0.12s;
 }
+.etm-chip__remove:hover { background: #c4b5fd; color: #3730a3; }
 
-.etm-tags-input__field {
+.etm-tag-input {
+  flex: 1;
+  min-width: 120px;
   border: none;
   outline: none;
   background: transparent;
-  font-size: 13px;
-  font-family: inherit;
+  font-size: 0.875rem;
   color: #111827;
-  flex: 1;
-  min-width: 80px;
+  padding: 2px 0;
+  font-family: inherit;
+}
+.etm-tag-input::placeholder { color: #9ca3af; }
+
+/* ===== Footer ===== */
+.etm-footer {
+  display: flex;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 0.75rem;
+  padding: 1rem 1.5rem 1.25rem;
+  border-top: 1px solid #f3f4f6;
+  border-radius: 0 0 16px 16px;
 }
 
-.etm-footer { display: flex; gap: 10px; justify-content: flex-end; }
-
-.etm-cancel {
-  padding: 10px 20px;
+.etm-btn {
+  padding: 0.55rem 1.25rem;
   border-radius: 10px;
-  border: 0.5px solid #e5e7eb;
-  background: #fff;
-  font-size: 14px;
+  font-size: 0.875rem;
   font-weight: 500;
-  color: #6b7280;
   cursor: pointer;
-  font-family: inherit;
-}
-
-.etm-save {
-  padding: 10px 24px;
-  border-radius: 10px;
-  background: #4B3AC7;
-  color: #fff;
-  font-size: 14px;
-  font-weight: 600;
   border: none;
-  cursor: pointer;
   font-family: inherit;
-  transition: background 0.15s;
+  transition: all 0.15s;
 }
+.etm-btn--ghost { background: #f3f4f6; color: #374151; border: 1px solid #e5e7eb; }
+.etm-btn--ghost:hover { background: #e5e7eb; }
+.etm-btn--primary { background: #6366f1; color: #fff; }
+.etm-btn--primary:hover:not(:disabled) { background: #4f46e5; }
+.etm-btn--primary:disabled { background: #c7d2fe; cursor: not-allowed; }
 
-.etm-save:hover { background: #3D2FAF; }
+/* ===== Responsive ===== */
+@media (max-width: 480px) {
+  .etm-priority-group { gap: 0.35rem; }
+}

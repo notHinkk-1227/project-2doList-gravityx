@@ -4,42 +4,54 @@ const jwt = require("jsonwebtoken");
 
 const register = async (req, res) => {
   try {
-    const { username, email, password } = req.body;
+    const { name, username, email, password } = req.body;
 
     // 1. Validasi Input
-    if (!username || !email || !password) {
+    if (!name || !username || !email || !password) {
       return res.status(400).json({
         message: "Semua field wajib diisi",
       });
     }
 
     // 2. Cek Email Sudah Ada
-    const existingUser = await pool.query(
+    const existingEmail = await pool.query(
       "SELECT * FROM users WHERE email = $1",
       [email]
     );
 
-    if (existingUser.rows.length > 0) {
+    if (existingEmail.rows.length > 0) {
       return res.status(400).json({
         message: "Email sudah terdaftar",
       });
     }
 
-    // 3. Hash Password
+    // 3. Cek Username Sudah Ada
+    const existingUsername = await pool.query(
+      "SELECT * FROM users WHERE username = $1",
+      [username]
+    );
+
+    if (existingUsername.rows.length > 0) {
+      return res.status(400).json({
+        message: "Username sudah digunakan",
+      });
+    }
+
+    // 4. Hash Password
     const hashedPassword = await bcrypt.hash(password, 10);
 
-    // 4. Simpan User
+    // 5. Simpan User
     const newUser = await pool.query(
       `
       INSERT INTO users
-      (username, email, password)
-      VALUES ($1, $2, $3)
-      RETURNING id, username, email, created_at
+      (name, username, email, password)
+      VALUES ($1, $2, $3, $4)
+      RETURNING id, name, username, email, created_at
       `,
-      [username, email, hashedPassword]
+      [name, username, email, hashedPassword]
     );
 
-    // 5. Response
+    // 6. Response
     res.status(201).json({
       message: "Register berhasil",
       user: newUser.rows[0],
@@ -72,7 +84,8 @@ const login = async (req, res) => {
 
     if (userResult.rows.length === 0) {
       return res.status(401).json({
-        message: "Email atau password salah",
+        message: "Email tidak ditemukan",
+        error_field: "email",
       });
     }
 
@@ -86,7 +99,8 @@ const login = async (req, res) => {
 
     if (!isMatch) {
       return res.status(401).json({
-        message: "Email atau password salah",
+        message: "Password salah",
+        error_field: "password",
       });
     }
 
@@ -107,6 +121,7 @@ const login = async (req, res) => {
       token,
       user: {
         id: user.id,
+        name: user.name,
         username: user.username,
         email: user.email,
       },
@@ -122,10 +137,26 @@ const login = async (req, res) => {
 };
 
 const profile = async (req, res) => {
-  res.status(200).json({
-    message: "Profile berhasil diakses",
-    user: req.user,
-  });
+  try {
+    // req.user hanya berisi payload JWT ({id, email}),
+    // jadi kita query ulang ke DB untuk ambil data lengkap (termasuk username)
+    const result = await pool.query(
+      "SELECT id, name, username, email, created_at FROM users WHERE id = $1",
+      [req.user.id]
+    );
+
+    if (result.rows.length === 0) {
+      return res.status(404).json({ message: "User tidak ditemukan" });
+    }
+
+    res.status(200).json({
+      message: "Profile berhasil diakses",
+      user: result.rows[0],
+    });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({ message: "Server Error" });
+  }
 };
 
 module.exports = {

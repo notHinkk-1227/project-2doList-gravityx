@@ -1,11 +1,14 @@
 import "./UserMenu.css";
 
-function UserMenu({ onLogout }) {
+function UserMenu({ user, onLogout }) {
+  const displayName = user?.username || user?.name || "User";
+  const displayEmail = user?.email || "";
+
   return (
     <div className="um-menu">
       <div className="um-info">
-        <div className="um-name">User</div>
-        <div className="um-email">user@example.com</div>
+        <div className="um-name">{displayName}</div>
+        <div className="um-email">{displayEmail}</div>
       </div>
     <button className="um-item">
         <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" width={16} height={16}>

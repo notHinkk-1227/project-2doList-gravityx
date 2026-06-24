@@ -1,4 +1,4 @@
-import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { BrowserRouter, Routes, Route, Navigate } from "react-router-dom";
 
 import RegisterPage from "../pages/Register/RegisterPage";
 import LoginPage from "../pages/Login/LoginPage";
@@ -9,6 +9,9 @@ function AppRoutes() {
   return (
     <BrowserRouter>
       <Routes>
+
+        {/* Redirect "/" langsung ke "/login" */}
+        <Route path="/" element={<Navigate to="/login" replace />} />
 
         <Route
           path="/register"

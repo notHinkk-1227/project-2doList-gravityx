@@ -12,25 +12,53 @@ function LoginPage() {
   const [remember, setRemember] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
-  
+  const [errorField, setErrorField] = useState(""); // "email" | "password" | ""
 
   const handleSubmit = async (e) => {
     e.preventDefault();
+    console.log("1. handleSubmit dipanggil");
+    console.log("2. email:", email, "password:", password);
     setLoading(true);
     setError("");
+    setErrorField("");
 
-  try {
-    const data = await loginUser({ email, password });
-    console.log(data);
-    if (remember) {
-      localStorage.setItem("token", data.token);
-  } else {
-    sessionStorage.setItem("token", data.token);
-  }
-  navigate("/dashboard");
-} catch (err) {
-      console.error("FULL ERROR:", err);
-      setError(err.response?.data?.message || "Incorrect email or password");
+    // Validasi manual
+    if (!email && !password) {
+      setErrorField("email");
+      setError("Email dan password wajib diisi");
+      setLoading(false);
+      return;
+    }
+    if (!email) {
+      setErrorField("email");
+      setError("Email wajib diisi");
+      setLoading(false);
+      return;
+    }
+    if (!password) {
+      setErrorField("password");
+      setError("Password wajib diisi");
+      setLoading(false);
+      return;
+    }
+
+    try {
+      const data = await loginUser({ email, password });
+
+      if (remember) {
+        localStorage.setItem("token", data.token);
+      } else {
+        sessionStorage.setItem("token", data.token);
+      }
+
+      navigate("/dashboard");
+    } catch (err) {
+      console.error("Login error:", err);
+      const field = err.response?.data?.error_field || "";
+      setErrorField(field);
+      setError(err.response?.data?.message || "Terjadi kesalahan, coba lagi");
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -47,41 +75,45 @@ function LoginPage() {
             <h1 className="lp-form__title">Login Account</h1>
             <p className="lp-form__subtitle">Send, spend and save smarter</p>
 
-            <form onSubmit={handleSubmit}>
+            <form onSubmit={handleSubmit} noValidate>
+
+              {/* Email Field */}
               <div className="lp-field">
                 <div style={{ position: "relative" }}>
                   <input
                     type="email"
                     placeholder="Email"
                     value={email}
-                    onChange={(e) => setEmail(e.target.value)}
-                    className={`lp-input ${error ? "lp-input--error" : ""}`}
-                    required
+                    onChange={(e) => { setEmail(e.target.value); setErrorField(""); setError(""); }}
+                    className={`lp-input ${errorField === "email" ? "lp-input--error" : ""}`}
                     style={{ paddingRight: "38px" }}
                   />
-                  <span style={{ position: "absolute", right: 12, top: "50%", transform: "translateY(-50%)", color: "#9ca3af" }}>
+                  <span style={{ position: "absolute", right: 12, top: "50%", transform: "translateY(-50%)", color: errorField === "email" ? "#ef4444" : "#9ca3af" }}>
                     <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" width={16} height={16}>
                       <path strokeLinecap="round" strokeLinejoin="round" d="M21.75 6.75v10.5a2.25 2.25 0 0 1-2.25 2.25h-15a2.25 2.25 0 0 1-2.25-2.25V6.75m19.5 0A2.25 2.25 0 0 0 19.5 4.5h-15a2.25 2.25 0 0 0-2.25 2.25m19.5 0v.243a2.25 2.25 0 0 1-1.07 1.916l-7.5 4.615a2.25 2.25 0 0 1-2.36 0L3.32 8.91a2.25 2.25 0 0 1-1.07-1.916V6.75" />
                     </svg>
                   </span>
                 </div>
+                {errorField === "email" && (
+                  <p className="lp-field-error">Email tidak ditemukan</p>
+                )}
               </div>
 
+              {/* Password Field */}
               <div className="lp-field">
                 <div style={{ position: "relative" }}>
                   <input
                     type={showPassword ? "text" : "password"}
                     placeholder="Password"
                     value={password}
-                    onChange={(e) => setPassword(e.target.value)}
-                    className={`lp-input ${error ? "lp-input--error" : ""}`}
-                    required
+                    onChange={(e) => { setPassword(e.target.value); setErrorField(""); setError(""); }}
+                    className={`lp-input ${errorField === "password" ? "lp-input--error" : ""}`}
                     style={{ paddingRight: "38px" }}
                   />
                   <button
                     type="button"
                     onClick={() => setShowPassword((v) => !v)}
-                    style={{ position: "absolute", right: 10, top: "50%", transform: "translateY(-50%)", background: "none", border: "none", cursor: "pointer", color: "#9ca3af", padding: 0 }}
+                    style={{ position: "absolute", right: 10, top: "50%", transform: "translateY(-50%)", background: "none", border: "none", cursor: "pointer", color: errorField === "password" ? "#ef4444" : "#9ca3af", padding: 0 }}
                   >
                     {showPassword ? (
                       <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" width={16} height={16}>
@@ -95,14 +127,18 @@ function LoginPage() {
                     )}
                   </button>
                 </div>
+                {errorField === "password" && (
+                  <p className="lp-field-error">Password salah</p>
+                )}
               </div>
 
-              {error && (
+              {/* Error umum (bukan field spesifik, misal server error) */}
+              {error && !errorField && (
                 <div className="lp-error-msg">
                   <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" strokeWidth={1.5} stroke="currentColor" width={16} height={16}>
                     <path strokeLinecap="round" strokeLinejoin="round" d="M12 9v3.75m-9.303 3.376c-.866 1.5.217 3.374 1.948 3.374h14.71c1.73 0 2.813-1.874 1.948-3.374L13.949 3.378c-.866-1.5-3.032-1.5-3.898 0L2.697 16.126ZM12 15.75h.007v.008H12v-.008Z" />
                   </svg>
-                  Incorrect email or password
+                  {error}
                 </div>
               )}
 

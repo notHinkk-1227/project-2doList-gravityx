@@ -264,3 +264,17 @@
 }
 
 .lp-card-footer a:hover { color: #7C5DF5; }
+
+/* Error per field */
+.lp-field-error {
+  color: #ef4444;
+  font-size: 12px;
+  margin-top: 4px;
+  margin-left: 2px;
+}
+
+/* Border merah pada input */
+.lp-input--error {
+  border-color: #ef4444 !important;
+  background-color: #fff5f5;
+}
